@@ -6,7 +6,10 @@ package it.polito.tdp.yelp;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import it.polito.tdp.yelp.model.Business;
 import it.polito.tdp.yelp.model.Model;
+import it.polito.tdp.yelp.model.Vicino;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -37,26 +40,45 @@ public class FXMLController {
     private TextField txtX2; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbCitta"
-    private ComboBox<?> cmbCitta; // Value injected by FXMLLoader
+    private ComboBox<String> cmbCitta; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbB1"
-    private ComboBox<?> cmbB1; // Value injected by FXMLLoader
+    private ComboBox<Business> cmbB1; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbB2"
-    private ComboBox<?> cmbB2; // Value injected by FXMLLoader
+    private ComboBox<Business> cmbB2; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
     
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	
+    	txtResult.clear();
+    	String city = cmbCitta.getValue();
+    	if(city == null) {
+    		txtResult.appendText("ERRORE: Selezionare prima una citta dal menu a tendina!\n");
+    	}
+    	this.model.creGrafo(city);
+    	cmbB1.getItems().addAll(this.model.getVertici());
+    	btnDistante.setDisable(false);
+
+    	txtResult.appendText("Grafo creato!\n");
+    	txtResult.appendText("#VERTICI: "+ this.model.nVertici()+"\n");
+    	txtResult.appendText("#ARCHI: "+ this.model.nArchi());
+		
     }
 
     @FXML
     void doCalcolaLocaleDistante(ActionEvent event) {
-
-    	
+    	btnCalcolaPercorso.setDisable(false);
+    	txtResult.clear();
+    	Business b1 = cmbB1.getValue();
+    	if(b1 == null) {
+    		txtResult.appendText("ERRORE: Selezionare prima un locale dal menu a tendina!\n");
+    	}
+    	Vicino v = this.model.getPiuDistante(b1);
+    	txtResult.appendText("LOCALE PIU DISTANTE:\n");
+    	txtResult.appendText(v.getBusiness()+ " = " + v.getDistanza() + "\n");
     }
 
     @FXML
@@ -80,5 +102,8 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	cmbCitta.getItems().addAll(this.model.getAllCities());
+    	btnDistante.setDisable(true);
+    	btnCalcolaPercorso.setDisable(true);
     }
 }
