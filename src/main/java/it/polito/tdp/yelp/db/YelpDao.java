@@ -130,9 +130,8 @@ public class YelpDao {
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
 
-				String s = res.getString("b.city");
-				result.add(s);
-			
+				String city = res.getString("b.city");
+				result.add(city);
 			}
 			res.close();
 			st.close();
@@ -151,32 +150,33 @@ public class YelpDao {
 				+ "WHERE b.city = ?";
 		
 		Connection conn = DBConnect.getConnection();
-
 		try {
 			PreparedStatement st = conn.prepareStatement(sql);
 			st.setString(1, city);
 			ResultSet res = st.executeQuery();
 			while (res.next()) {
-				if(!idMap.containsKey(res.getString("business_id"))) {
 
-					Business business = new Business(res.getString("business_id"), 
-							res.getString("full_address"),
-							res.getString("active"),
-							res.getString("categories"),
-							res.getString("city"),
-							res.getInt("review_count"),
-							res.getString("business_name"),
-							res.getString("neighborhoods"),
-							res.getDouble("latitude"),
-							res.getDouble("longitude"),
-							res.getString("state"),
-							res.getDouble("stars"));
-					idMap.put(res.getString("business_id"), business);
+				if(!idMap.containsKey(res.getString("b.business_id"))) {
+					
+					Business business = new Business(res.getString("b.business_id"), 
+							res.getString("b.full_address"),
+							res.getString("b.active"),
+							res.getString("b.categories"),
+							res.getString("b.city"),
+							res.getInt("b.review_count"),
+							res.getString("b.business_name"),
+							res.getString("b.neighborhoods"),
+							res.getDouble("b.latitude"),
+							res.getDouble("b.longitude"),
+							res.getString("b.state"),
+							res.getDouble("b.stars"));
+					idMap.put(res.getString("b.business_id"), business);
 				}
 			}
 			res.close();
 			st.close();
 			conn.close();
+			
 		} catch (SQLException e) {
 			e.printStackTrace();
 			return;
@@ -184,13 +184,13 @@ public class YelpDao {
 	}
 	
 	public List<Adiacenza> getAdiacenze(String city, Map<String, Business> idMap){
-		String sql ="SELECT b1.business_id AS id1, b2.business_id AS id2, b1.latitude AS lat1, b1.longitude AS long1, b2.latitude AS lat2, b2.longitude AS long2 "
+		String sql = "SELECT b1.business_id AS id1, b2.business_id AS id2, b1.latitude AS lat1, b1.longitude AS long1, b2.latitude AS lat2, b2.longitude AS long2 "
 				+ "FROM business b1, business b2 "
 				+ "WHERE b1.business_id < b2.business_id "
-				+ "AND b1.city = b2.city AND b1.city = ? ";
+				+ "AND b1.city = b2.city AND b1.city = ? "
+				+ "GROUP BY id1, id2";
 		List<Adiacenza> result = new ArrayList<>();
 		Connection conn = DBConnect.getConnection();
-
 		try {
 			PreparedStatement st = conn.prepareStatement(sql);
 			st.setString(1, city);
@@ -198,13 +198,12 @@ public class YelpDao {
 			while (res.next()) {
 
 				if(idMap.containsKey(res.getString("id1")) && idMap.containsKey(res.getString("id2"))) {
-					
 					LatLng posizione1 = new LatLng(res.getDouble("lat1"), res.getDouble("long1"));
 					LatLng posizione2 = new LatLng(res.getDouble("lat2"), res.getDouble("long2"));
 					Double peso = LatLngTool.distance(posizione1, posizione2, LengthUnit.KILOMETER);
 					
 					Adiacenza a = new Adiacenza(idMap.get(res.getString("id1")), idMap.get(res.getString("id2")), peso);
-				    result.add(a);
+					result.add(a);
 				}
 				
 			}
@@ -218,4 +217,5 @@ public class YelpDao {
 			return null;
 		}
 	}
+	
 }

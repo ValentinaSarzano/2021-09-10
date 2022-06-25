@@ -5,6 +5,8 @@
 package it.polito.tdp.yelp;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.yelp.model.Business;
@@ -56,34 +58,65 @@ public class FXMLController {
     	txtResult.clear();
     	String city = cmbCitta.getValue();
     	if(city == null) {
-    		txtResult.appendText("ERRORE: Selezionare prima una citta dal menu a tendina!\n");
+    		txtResult.appendText("ERRORE: Selezionare una citta dal menu a tendina!\n");
+    		return;
     	}
-    	this.model.creGrafo(city);
+    	this.model.creaGrafo(city);
+    	
+    	cmbB1.getItems().clear();
+    	cmbB2.getItems().clear();
     	cmbB1.getItems().addAll(this.model.getVertici());
+    	cmbB2.getItems().addAll(this.model.getVertici());
+    	
     	btnDistante.setDisable(false);
-
+    	btnCalcolaPercorso.setDisable(false);
+    	
     	txtResult.appendText("Grafo creato!\n");
     	txtResult.appendText("#VERTICI: "+ this.model.nVertici()+"\n");
-    	txtResult.appendText("#ARCHI: "+ this.model.nArchi());
-		
+    	txtResult.appendText("#ARCHI: "+ this.model.nArchi()+"\n");
+    	
     }
 
     @FXML
     void doCalcolaLocaleDistante(ActionEvent event) {
-    	btnCalcolaPercorso.setDisable(false);
     	txtResult.clear();
     	Business b1 = cmbB1.getValue();
     	if(b1 == null) {
-    		txtResult.appendText("ERRORE: Selezionare prima un locale dal menu a tendina!\n");
+    		txtResult.appendText("ERRORE: Selezionare un locale commerciale dal menu a tendina!\n");
     	}
-    	Vicino v = this.model.getPiuDistante(b1);
+    	Vicino piuDistante = this.model.getPiuDistante(b1);
     	txtResult.appendText("LOCALE PIU DISTANTE:\n");
-    	txtResult.appendText(v.getBusiness()+ " = " + v.getDistanza() + "\n");
+    	txtResult.appendText(piuDistante.getBusiness() + " = " + piuDistante.getPeso() + "\n");
     }
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
 
+    	txtResult.clear();
+    	Business b1 = cmbB1.getValue();
+    	Business b2 = cmbB2.getValue();
+    	if(b1 == null) {
+    		txtResult.appendText("ERRORE: Selezionare un locale commerciale dal menu a tendina!\n");
+    	    return;
+    	}
+    	if(b2 == null) {
+    		txtResult.appendText("ERRORE: Selezionare un locale commerciale dal menu a tendina!\n");
+    		return;
+    	}
+    	
+    	Double x = 0.0;
+    	try {
+    		x = Double.parseDouble(txtX2.getText());
+    	}catch(NumberFormatException e) {
+    		txtResult.appendText("ERRORE: Inserire un numero di soglia valido!\n");
+    	}
+    	List<Business> percorso = new ArrayList<>(this.model.trovaPercorso(b1, b2, x));
+    	txtResult.appendText("TOUR ENOGASTRONOMICO:\n");
+    	for(Business b: percorso) {
+    		txtResult.appendText(b + "\n");
+    	}
+    	Double kmTotali = this.model.getKmTotali(percorso);
+    	txtResult.appendText("Km totali percorsi: " + kmTotali);
     }
 
 
@@ -105,5 +138,6 @@ public class FXMLController {
     	cmbCitta.getItems().addAll(this.model.getAllCities());
     	btnDistante.setDisable(true);
     	btnCalcolaPercorso.setDisable(true);
+    	
     }
 }

@@ -1,7 +1,6 @@
 package it.polito.tdp.yelp.model;
 
 public class Adiacenza {
-	
 	private Business b1;
 	private Business b2;
 	private double peso;
@@ -36,6 +35,7 @@ public class Adiacenza {
 	public void setPeso(double peso) {
 		this.peso = peso;
 	}
-
 	
+	
+
 }

@@ -2,12 +2,12 @@ package it.polito.tdp.yelp.model;
 
 public class Vicino {
 	private Business business;
-	private double distanza;
+	private double peso;
 	
-	public Vicino(Business business, double distanza) {
+	public Vicino(Business business, double peso) {
 		super();
 		this.business = business;
-		this.distanza = distanza;
+		this.peso = peso;
 	}
 
 	public Business getBusiness() {
@@ -18,12 +18,12 @@ public class Vicino {
 		this.business = business;
 	}
 
-	public double getDistanza() {
-		return distanza;
+	public double getPeso() {
+		return peso;
 	}
 
-	public void setDistanza(double distanza) {
-		this.distanza = distanza;
+	public void setPeso(double peso) {
+		this.peso = peso;
 	}
 	
 
